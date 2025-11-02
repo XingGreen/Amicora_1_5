@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Amicora - 我的世界服务器</title>
+  <!-- 引入外部资源 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+  
+  <!-- Tailwind 配置 -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: '#3ad59fcd', 
+            secondary: '#EC4899', // 辅助色
+            accent: '#10B981', // 强调色
+            glass: 'rgba(255, 255, 255, 0.15)', // 玻璃态背景
+            'glass-dark': 'rgba(17, 24, 39, 0.7)', // 深色模式玻璃态
+            'glass-while': 'rgba(17, 24, 39, 0.7)', // 浅色模式玻璃态
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          animation: {
+            'float': 'float 6s ease-in-out infinite',
+            'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-10px)' },
+            }
+          }
+        },
+      }
+    }
+  </script>
+  
+  <!-- 自定义工具类 -->
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .glass-effect {
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
+      .text-shadow {
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .card-hover {
+        transition: all 0.3s ease;
+      }
+      .card-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+      }
+    }
+  </style>
+  
+  <style>
+    /* 全局样式 */
+    body {
+      transition: background-image 1s ease-in-out, background-color 0.3s ease;
+      overflow-x: hidden;
+    }
+    
+    /* 背景图样式 */
+    .bg-anime {
+      background-image: url('images/【哲风壁纸】安静氛围-森林.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+    
+    .bg-pure {
+      background-image: none;
+    }
+    
+    /* 滚动条美化 */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: rgba(92, 246, 233, 0.5);
+      border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgb(92, 246, 128);
+    }
+    
+    /* 平滑滚动 */
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    /* 动画延迟类 */
+    .delay-100 { animation-delay: 0.1s; }
+    .delay-200 { animation-delay: 0.2s; }
+    .delay-300 { animation-delay: 0.3s; }
+    .delay-400 { animation-delay: 0.4s; }
+    .delay-500 { animation-delay: 0.5s; }
+    .delay-600 { animation-delay: 0.6s; }
+  </style>
+</head>
+
+<body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-100 bg-anime">
+  <!-- 音频播放器 (默认隐藏) -->
+  <audio id="bgMusic" loop>
+    <source src="mp3/星相运轨.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- 导航栏 -->
+  <header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
+    <nav class="glass-effect bg-glass dark:bg-glass-dark border-b border-white/10 dark:border-gray-800">
+      <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+        <!-- Logo 和名称 -->
+         <!-- Logo和名称容器 -->
+    <div class="logo-container">
+        <div class="flex items-center space-x-2">
+            <!-- Logo图片（使用占位图替代示例） -->
+            <img 
+                src="images/4339D008290ECA9B05FFD69AF2EC3351.jpg"  
+                alt="Amicora Logo" 
+                class="w-10 h-10 rounded-lg object-contain"  
+            />
+            <!-- 名称 -->
+            <span class="text-xl font-bold text-white text-shadow">
+                Amicora
+            </span>
+        </div>
+    </div>
+        
+        <!-- 导航链接 - 桌面端 -->
+        <div class="hidden md:flex items-center space-x-8">
+          <a href="index.html" class="text-white hover:text-primary transition-colors py-2 tooltip" data-tooltip="返回首页">首页</a>
+          <a href="#about" class="nav-link text-white hover:text-primary transition-colors tooltip" data-tooltip="服务器各类信息或帮助">关于</a>
+          <a href="#community" class="nav-link text-white hover:text-primary transition-colors tooltip" data-tooltip="暂时还没想到做什么">玩家社区</a>
+          <a href="#news" class="nav-link text-white hover:text-primary transition-colors tooltip" data-tooltip="一些好的文章或关于Ammicofa的公告">文章与新闻</a>
+          <a href="#fun" class="nav-link text-white hover:text-primary transition-colors tooltip" data-tooltip="别称“屌图区（）”">趣味</a>
+          <a href="#friends" class="nav-link text-white hover:text-primary transition-colors tooltip" data-tooltip="和本服已建立友好关系的服务器">友情服务器</a>
+          <a href="#recommendations" class="nav-link text-white hover:text-primary transition-colors tooltip" data-tooltip="个人推荐的优质站点">推荐站点</a>
+          <a href="hdcd.html" class="text-white hover:text-primary transition-colors py-2 tooltip" data-tooltip="互动功能菜单">互动菜单</a>
+          <a href="home_old.html" class="text-white hover:text-primary transition-colors py-2 tooltip" data-tooltip="查看旧版主页">初代主页</a>
+          
+        </div>
+        
+        <!-- 语言切换 -->
+        <div class="hidden md:flex items-center space-x-4 mr-4">
+          <select id="languageSelect" class="bg-transparent text-white border border-white/20 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary">
+            <option value="zh-CN">简体中文</option>
+            <option value="en">English</option>
+            <option value="meow">喵语</option>
+            <option value="wenyan">文言文</option>
+          </select>
+        </div>
+        
+        <!-- 主题切换按钮 -->
+        <div class="flex items-center space-x-3">
+          <button id="themeToggle" class="p-2 rounded-full hover:bg-white/10 transition-colors text-white">
+            <i class="fa fa-moon-o"></i>
+          </button>
+          <button id="bgToggle" class="p-2 rounded-full hover:bg-white/10 transition-colors text-white">
+            <i class="fa fa-image"></i>
+          </button>
+          <button id="musicToggle" class="p-2 rounded-full hover:bg-white/10 transition-colors text-white">
+            <i class="fa fa-music"></i>
+          </button>
+          
+          <!-- 移动端菜单按钮 -->
+          <button id="mobileMenuBtn" class="md:hidden p-2 rounded-full hover:bg-white/10 transition-colors text-white">
+            <i class="fa fa-bars"></i>
+          </button>
+        </div>
+      </div>
+      
+      <!-- 移动端菜单 -->
+      <div id="mobileMenu" class="md:hidden hidden glass-effect bg-glass/90 dark:bg-glass-dark/90 border-t border-white/10">
+        <div class="container mx-auto px-4 py-3 flex flex-col space-y-3">
+          <a href="index.html" class="text-white hover:text-primary transition-colors py-2">首页</a>
+          <a href="#about" class="text-white hover:text-primary transition-colors py-2">关于</a>
+          <a href="#community" class="text-white hover:text-primary transition-colors py-2">玩家社区</a>
+          <a href="#news" class="text-white hover:text-primary transition-colors py-2">文章与新闻</a>
+          <a href="#fun" class="text-white hover:text-primary transition-colors py-2">趣味</a>
+          <a href="#friends" class="text-white hover:text-primary transition-colors py-2">友情服务器</a>
+          <a href="#recommendations" class="text-white hover:text-primary transition-colors py-2">推荐站点</a>
+          <a href="hdcd.html" class="text-white hover:text-primary transition-colors py-2">互动菜单</a>
+          <a href="home_old.html" class="text-white hover:text-primary transition-colors py-2">初代主页</a>
+          
+          <div class="pt-2 border-t border-white/10">
+            <select id="mobileLanguageSelect" class="w-full bg-transparent text-black border border-white/20 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
+              <option value="zh-CN">简体中文</option>
+              <option value="en">English</option>
+              <option value="meow">喵语</option>
+              <option value="wenyan">文言文</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- 主内容 -->
+  <main class="container mx-auto px-4 pt-28 pb-16">
+    <!-- 欢迎区域 -->
+    <section id="welcome" class="mb-16 text-center">
+      <h1 id="greeting" class="text-[clamp(2rem,5vw,3.5rem)] font-bold text-white text-shadow mb-4 animate-pulse-slow"></h1>
+      <p id="dailyQuote" class="text-[clamp(1.2rem,3vw,1.8rem)] text-white text-shadow max-w-3xl mx-auto"></p>
+    </section>
+    
+    <!-- 关于大版块 -->
+    <section id="about" class="mb-20 scroll-mt-24">
+      <div class="glass-effect bg-glass dark:bg-glass-dark rounded-3xl p-6 md:p-10 border border-white/10 dark:border-gray-800 shadow-xl">
+        <h2 class="text-3xl md:text-4xl font-bold mb-8 text-white text-shadow flex items-center">
+          <i class="fa fa-info-circle mr-3 text-primary"></i>关于
+        </h2>
+        
+        <!-- 七个小版块 - 响应式网格布局 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- 服务器介绍 -->
+          <div class="glass-effect bg-white/5 dark:bg-gray-800/30 rounded-2xl p-6 border border-white/10 dark:border-gray-700 shadow-lg card-hover animate-float">
+            <div class="flex justify-between items-start mb-4">
+              <h3 class="text-xl font-bold text-white">服务器介绍</h3>
+              <button class="collapse-btn text-white/70 hover:text-white p-1 rounded-full hover:bg-white/10 transition-colors">
+                <i class="fa fa-chevron-up"></i>
+              </button>
+            </div>
+            <div class="collapse-content">
+              <p class="text-gray-200 mb-4">Amicora 是一个友好、和谐的我的世界服务器社区，致力于为玩家提供优质的游戏体验。我们拥有不稳定的服务器性能和丰富的游戏内容，欢迎各位玩家加入。()</p>
+              <p class="text-gray-200">服务器名字读作阿米科拉</p>
+            </div>
+          </div>
+          
+          <!-- 服务器状态 -->
+          <div class="glass-effect bg-white/5 dark:bg-gray-800/30 rounded-2xl p-6 border border-white/10 dark:border-gray-700 shadow-lg card-hover animate-float delay-100">
+            <div class="flex justify-between items-start mb-4">
+              <h3 class="text-xl font-bold text-white">服务器状态</h3>
+              <button class="collapse-btn text-white/70 hover:text-white p-1 rounded-full hover:bg-white/10 transition-colors">
+                <i class="fa fa-chevron-up"></i>
+              </button>
+            </div>
+            <div class="collapse-content">
+              <div class="flex items-center mb-3">
+                <span class="w-3 h-3 rounded-full bg-red-500 mr-2"></span>
+                <span class="text-red-400 font-medium">离线</span>
+              </div>
+              <p class="text-gray-200 mb-2">当前玩家: <span id="playerCount">0/100</span></p>
+              <div class="w-full bg-gray-700 rounded-full h-2.5 mb-4">
+                <div class="bg-primary h-2.5 rounded-full" style="width: 0%"></div>
+              </div>
+              <canvas id="serverStatusChart" height="120"></canvas>
+            </div>
+          </div>
+          
+          <!-- 服务器信息 -->
+          <div class="glass-effect bg-white/5 dark:bg-gray-800/30 rounded-2xl p-6 border border-white/10 dark:border-gray-700 shadow-lg card-hover animate-float delay-200">
+            <div class="flex justify-between items-start mb-4">
+              <h3 class="text-xl font-bold text-white">服务器信息</h3>
+              <button class="collapse-btn text-white/70 hover:text-white p-1 rounded-full hover:bg-white/10 transition-colors">
+                <i class="fa fa-chevron-up"></i>
+              </button>
+            </div>
+            <div class="collapse-content">
+              <ul class="text-gray-200 space-y-2">
+                <li>登录方式: 采用正版与 Littleskin 共存（无正版账号需前往<a href="https://littleskin.cn/" target="_blank">LittleSkin网站</a>注册登录并创建角色）</li>
+                 <li class="flex items-center"><i class="fa fa-clock-o mr-2 text-primary"></i> 开服时间: 2025.7.7</li>
+                        <li class="flex items-center"><i class="fa fa-map mr-2 text-primary"></i> 模式: 生存</li>
+                        <li class="flex items-center"><i class="fa fa-plug mr-2 text-primary"></i> 插件: 基础插件</li>
+                        <li class="flex items-center"><i class="fa fa-shield mr-2 text-primary"></i> 反作弊: 启用</li>        
+                <li>登录平台: 基岩版与Java版都可进入</li> 
+                <li>基本特性：可生电，困难模式，死亡不掉落，世界大小正常，加入了传送插件“huskhome”</li>
+                <li>核心: Purpur1.21.8</li>
+                <li>类型：原版生存服务器，禁止使用任何破坏游戏平衡的插件和MOD</li>
+                <li>端口：基岩版[20721]</li>
+                <li>版本：支持1.13~1.21.8</li>
+                <li>地图：原版生存地图，定期备份</li>
+                <li>规则：禁止作弊，禁止恶意破坏他人建筑，禁止使用任何破坏游戏平衡的插件和MOD，禁止辱骂他人</li> 
+                <li>社区：我们有一个活跃的社区，欢迎加入我们的QQ群:259378600，与其他玩家交流和分享你的冒险经历！</li>
+              </ul>
+            </div>
+          </div>
+          
+          <!-- 服务器规则 -->
+          <div class="glass-effect bg-white/5 dark:bg-gray-800/30 rounded-2xl p-6 border border-white/10 dark:border-gray-700 shadow-lg card-hover animate-float delay-300">
+            <div class="flex justify-between items-start mb-4">
+              <h3 class="text-xl font-bold text-white">服务器规则</h3>
+              <button class="collapse-btn text-white/70 hover:text-white p-1 rounded-full hover:bg-white/10 transition-colors">
+                <i class="fa fa-chevron-up"></i>
+              </button>
+            </div>
+            <div class="collapse-content">
+              <ul class="text-gray-200 space-y-2 list-disc pl-5">
+                <li>禁止使用外挂、作弊客户端</li>
+                <li>禁止恶意破坏他人建筑</li>
+                <li>禁止发布不良信息、广告</li>
+                <li>禁止辱骂、攻击其他玩家</li>
+                <li>禁止利用漏洞获取不正当利益</li>
+                <li>请尊重管理员和其他玩家</li>
+              </ul>
+            </div>
+          </div>
+          
+          <!-- 服内指令指南 -->
+          <div class="glass-effect bg-white/5 dark:bg-gray-800/30 rounded-2xl p-6 border border-white/10 dark:border-gray-700 shadow-lg card-hover animate-float delay-400">
+            <div class="flex justify-between items-start mb-4">
+              <h3 class="text-xl font-bold text-white">服内指令指南</h3>
+              <button class="collapse-btn text-white/70 hover:text-white p-1 rounded-full hover:bg-white/10 transition-colors">
+                <i class="fa fa-chevron-up"></i>
+              </button>
+            </div>
+            <div class="collapse-content">
+              <ul class="text-gray-200 space-y-2">
+                <li><code class="bg-gray-700 px-1 rounded">/help</code> - 查看帮助</li>
+                <li><code class="bg-gray-700 px-1 rounded">/spawn</code> - 返回出生点</li>
+                <li><code class="bg-gray-700 px-1 rounded">/sethome [地点名]</code> - 设置传送点</li>
+                <li><code class="bg-gray-700 px-1 rounded">/spawn</code> - 返回出生点</li>
+                <li><code class="bg-gray-700 px-1 rounded">/home [地点名]</code> - 回家</li>
+                <li><code class="bg-gray-700 px-1 rounded">/back</code> - 回到死亡点</li>
+                <li><code class="bg-gray-700 px-1 rounded">/tpa [玩家名]</code> - 请求传送到其他玩家</li>
+                <li><code class="bg-gray-700 px-1 rounded">/tpahere [玩家名]</code> - 请求其他玩家传送到此处<li>
+                <li><code class="bg-gray-700 px-1 rounded">/tpa </code> - 请求传送到其他玩家<li>
+
+                <li><code class="bg-gray-700 px-1 rounded">/tell [玩家名] [内容]</code> - 私信</li>  
+                <li><code class="bg-gray-700 px-1 rounded">/report [玩家名] [原因]</code> - 举报玩家</li>
+              </ul>
+            </div>
+          </div>
+          
+          <!-- 服内景观 -->
+          <div class="glass-effect bg-white/5 dark:bg-gray-800/30 rounded-2xl p-6 border border-white/10 dark:border-gray-700 shadow-lg card-hover animate-float delay-500">
+            <div class="flex justify-between items-start mb-4">
+              <h3 class="text-xl font-bold text-white">服内景观</h3>
+              <button class="collapse-btn text-white/70 hover:text-white p-1 rounded-full hover:bg-white/10 transition-colors">
+                <i class="fa fa-chevron-up"></i>
+              </button>
+            </div>
+            <div class="collapse-content">
+              <div class="grid grid-cols-2 gap-2 mb-2">
+                <img src="images/001.jpg" alt="服务器景观1" class="rounded-lg w-full h-24 object-cover">
+                <img src="images/002.jpg" alt="服务器景观2" class="rounded-lg w-full h-24 object-cover">
+                <img src="images/003.jpg" alt="服务器景观3" class="rounded-lg w-full h-24 object-cover">
+                <img src="images/004.jpg" alt="服务器景观4" class="rounded-lg w-full h-24 object-cover">
+                <img src="images/005.jpg" alt="服务器景观5" class="rounded-lg w-full h-24 object-cover">
+                <img src="images/006.jpg" alt="服务器景观6" class="rounded-lg w-full h-24 object-cover">
+                <img src="images/007.jpg" alt="服务器景观7" class="rounded-lg w-full h-24 object-cover">
+                <img src="images/008.jpg" alt="服务器景观8" class="rounded-lg w-full h-24 object-cover">
+              </div>
+              <p class="text-gray-200 text-sm">我们的服务器拥有许多玩家建造的精美景观，欢迎探索！</p>
+            </div>
+          </div>
+          
+          <!-- 如何加入 -->
+          <div class="glass-effect bg-white/5 dark:bg-gray-800/30 rounded-2xl p-6 border border-white/10 dark:border-gray-700 shadow-lg card-hover animate-float delay-600 md:col-span-2 lg:col-span-1">
+            <div class="flex justify-between items-start mb-4">
+              <h3 class="text-xl font-bold text-white">如何加入</h3>
+              <button class="collapse-btn text-white/70 hover:text-white p-1 rounded-full hover:bg-white/10 transition-colors">
+                <i class="fa fa-chevron-up"></i>
+              </button>
+            </div>
+            <div class="collapse-content">
+              <p class="text-gray-200 mb-3">加入我们的服务器非常简单，只需几步：</p>
+              <ol class="text-gray-200 space-y-2 list-decimal pl-5 mb-3">
+                <li>打开你的 Minecraft 启动器。</li>
+                <li>选择“多人游戏”。</li>
+                <li>点击“添加服务器”。</li>
+                <li>输入服务器地址<strong>play.amicora.xyz</strong></li>
+                <li>点击“完成”，然后加入服务器开始你的冒险！</li>
+              </ol>
+              <div class="bg-gray-800/50 rounded-lg p-3 flex items-center">
+                <i class="fa fa-server text-primary mr-2"></i>
+                <span class="text-white font-mono">play.vahiru,xyz</span>
+                <button class="ml-auto text-primary hover:text-secondary transition-colors" onclick="copyToClipboard('play.vahiru.xyz')">
+                  <i class="fa fa-copy"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 玩家社区 -->
+    <section id="community" class="mb-20 scroll-mt-24">
+      <div class="glass-effect bg-glass dark:bg-glass-dark rounded-3xl p-6 md:p-10 border border-white/10 dark:border-gray-800 shadow-xl">
+        <h2 class="text-3xl md:text-4xl font-bold mb-8 text-white text-shadow flex items-center">
+          <i class="fa fa-users mr-3 text-primary"></i>玩家社区
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <!-- 社区统计 -->
+          <div class="glass-effect bg-white/5 dark:bg-gray-800/30 rounded-2xl p-6 border border-white/10 dark:border-gray-700 shadow-lg">
+            <h3 class="text-xl font-bold text-white mb-4">社区统计</h3>
+            <div class="grid grid-cols-2 gap-4 mb-6">
+              <div class="bg-white/5 rounded-xl p-4 text-center">
+                <p class="text-gray-300 text-sm">总注册玩家</p>
+                <p class="text-3xl font-bold text-white">unknown</p>
+              </div>
+              <div class="bg-white/5 rounded-xl p-4 text-center">
+                <p class="text-gray-300 text-sm">今日活跃</p>
+                <p class="text-3xl font-bold text-white">0</p>
+              </div>
+              <div class="bg-white/5 rounded-xl p-4 text-center">
+                <p class="text-gray-300 text-sm">论坛帖子</p>
+                <p class="text-3xl font-bold text-white">0</p>
+              </div>
+              <div class="bg-white/5 rounded-xl p-4 text-center">
+                <p class="text-gray-300 text-sm">Discord成员</p>
+                <p class="text-3xl font-bold text-white">0</p>
+              </div>
+            </div>
+            <canvas id="communityChart" height="200"></canvas>
+          </div>
+          
+          <!-- 活跃玩家 -->
+          <div class="glass-effect bg-white/5 dark:bg-gray-800/30 rounded-2xl p-6 border border-white/10 dark:border-gray-700 shadow-lg">
+            <h3 class="text-xl font-bold text-white mb-4">活跃玩家</h3>
+            <div class="space-y-3 max-h-80 overflow-y-auto pr-2">
+              <!-- 玩家列表 -->
+              <div class="flex items-center p-3 bg-white/5 rounded-xl hover:bg-white/10 transition-colors">
+                <img src="images/0_001.jpg" alt="玩家头像" class="w-10 h-10 rounded-full mr-3">
+                <div class="flex-1">
+                  <p class="text-white font-medium">unknown</p>
+                  <p class="text-gray-300 text-sm">在线时长: 0小时</p>
+                </div>
+                <span class="px-2 py-1 bg-red-500/20 text-red-400 text-xs rounded-full">离线</span>
+              </div>
+            
+            <button class="mt-4 w-full py-2 border border-primary text-primary hover:bg-primary hover:text-white rounded-lg transition-colors">
+              查看全部玩家
+            </button>
+          </div>
+        </div>
+        
+        <!-- 社区平台 -->
+        <div class="mt-8">
+          <h3 class="text-xl font-bold text-white mb-4">加入我们的社区平台</h3>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <a href="#" class="glass-effect bg-white/5 dark:bg-gray-800/30 rounded-2xl p-6 border border-white/10 dark:border-gray-700 shadow-lg text-center hover:bg-primary/20 transition-colors group">
+              <div class="w-14 h-14 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-primary/40 transition-colors">
+                <i class="fa fa-discord text-2xl text-white"></i>
+              </div>
+              <p class="text-white font-medium">Q群:259378600</p>
+            </a>
+  
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 文章与新闻 -->
+    <section id="news" class="mb-20 scroll-mt-24">
+      <div class="glass-effect bg-glass dark:bg-glass-dark rounded-3xl p-6 md:p-10 border border-white/10 dark:border-gray-800 shadow-xl">
+        <h2 class="text-3xl md:text-4xl font-bold mb-8 text-white text-shadow flex items-center">
+          <i class="fa fa-newspaper-o mr-3 text-primary"></i>文章与新闻
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- 新闻卡片1 -->
+          <div class="glass-effect bg-white/5 dark:bg-gray-800/30 rounded-2xl overflow-hidden border border-white/10 dark:border-gray-700 shadow-lg card-hover">
+            <img src="images/example.webp" alt="服务器关停" class="w-full h-48 object-cover">
+            <div class="p-5">
+              <div class="flex items-center text-sm text-gray-300 mb-2">
+                <i class="fa fa-calendar-o mr-1"></i> 2025-11-1
+                <span class="mx-2">•</span>
+                <i class="fa fa-user-o mr-1"></i> 管理员
+              </div>
+              <h3 class="text-xl font-bold text-white mb-2">服务器关停</h3>
+              <p class="text-gray-300 mb-4 line-clamp-3">由于服务器在线人数长时间=0，所以运维组决定将服务器暂时性关停，节省运营所消耗的费用，等到未来再决定再次开机<p>
+              <a href="#" class="text-primary hover:text-secondary transition-colors inline-flex items-center">
+                阅读更多 <i class="fa fa-arrow-right ml-1"></i>
+              </a>
+            </div>
+          </div>
+          
+          
+        <div class="mt-8 text-center">
+          <button class="py-3 px-6 bg-primary hover:bg-primary/80 text-white rounded-lg transition-colors inline-flex items-center">
+            查看更多文章 <i class="fa fa-chevron-right ml-2"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 趣味 -->
+    <section id="fun" class="mb-20 scroll-mt-24">
+     <div class="glass-effect bg-glass dark:bg-glass-dark rounded-3xl p-6 md:p-10 border border-white/10 dark:border-gray-800 shadow-xl">
+        <h2 class="text-3xl md:text-4xl font-bold mb-8 text-white text-shadow flex items-center">
+          <i class="fa fa-gamepad mr-3 text-primary"></i>趣味
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </section>
+    
+    <!-- 友情服务器 -->
+    <section id="friends" class="mb-20 scroll-mt-24">
+      <div class="glass-effect bg-glass dark:bg-glass-dark rounded-3xl p-6 md:p-10 border border-white/10 dark:border-gray-800 shadow-xl">
+        <h2 class="text-3xl md:text-4xl font-bold mb-8 text-white text-shadow flex items-center">
+          <i class="fa fa-handshake-o mr-3 text-primary"></i>友情服务器
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          
+          
+          <!-- 友服1 -->
+          <div class="glass-effect bg-white/5 dark:bg-gray-800/30 rounded-2xl p-6 border border-white/10 dark:border-gray-700 shadow-lg flex items-center card-hover">
+            <div class="w-16 h-16 rounded-full bg-yellow-500/20 flex items-center justify-center mr-4 flex-shrink-0">
+              <i class="fa fa-bolt text-2xl text-yellow-400"></i>
+            </div>
+            <div class="flex-1">
+              <h3 class="text-xl font-bold text-white mb-1">Vdrias World</h3>
+              <p class="text-gray-300 text-sm mb-2">专注于红石科技与机械的专业服务器</p>
+              <p class="text-gray-300 text-sm mb-2">地址:play.vdrias.cn</p>
+              <div class="flex items-center text-xs text-gray-400">
+                <span class="mr-3"><i class="fa fa-users mr-1"></i> unknown+ 玩家</span>
+                <span><i class="fa fa-calendar mr-1"></i> 开服unknown年</span>
+              </div>
+            </div>
+            <a href="https://manual.vdrias.cn/rules" class="ml-2 text-primary hover:text-secondary transition-colors">
+              <i class="fa fa-external-link"></i>
+            </a>
+          </div>
+          
+          
+          
+          <!-- 申请友情链接 -->
+          <div class="glass-effect bg-white/5 dark:bg-gray-800/30 rounded-2xl p-6 border-2 border-dashed border-primary/50 dark:border-primary/50 shadow-lg flex items-center justify-center h-full card-hover group cursor-pointer">
+            <div class="text-center">
+              <div class="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/40 transition-colors">
+                <i class="fa fa-plus text-2xl text-primary"></i>
+              </div>
+              <h3 class="text-xl font-bold text-white mb-1">申请友情链接</h3>
+              <p class="text-gray-300 text-sm">如果您也拥有服务器，欢迎申请</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+     <!-- 推荐站点 -->
+    <section id="recommendations" class="mb-20 scroll-mt-24 section-wrapper">
+      <div class="glass-effect bg-glass dark:bg-glass-dark rounded-3xl p-6 md:p-10 border border-white/10 dark:border-gray-800 shadow-xl">
+        <div class="flex justify-between items-center mb-8">
+          <h2 class="text-3xl md:text-4xl font-bold text-white text-shadow flex items-center tooltip" data-tooltip="个人推荐的优质站点">
+            <i class="fa fa-star mr-3 text-primary"></i>推荐站点
+          </h2>
+          <button class="section-toggle p-2 rounded-full hover:bg-white/10 transition-colors text-white">
+            <i class="fa fa-chevron-up"></i>
+          </button>
+        </div>
+        
+        <div class="section-content grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- 推荐站点1 -->
+          <div class="glass-effect bg-white/5 dark:bg-gray-800/30 rounded-2xl p-6 border border-white/10 dark:border-gray-700 shadow-lg card-hover">
+            <div class="flex justify-between items-start mb-4">
+              <h3 class="text-xl font-bold text-white">哲风壁纸</h3>
+              <button class="collapse-btn text-white/70 hover:text-white p-1 rounded-full hover:bg-white/10 transition-colors">
+                <i class="fa fa-chevron-up"></i>
+              </button>
+            </div>
+            <div class="collapse-content">
+              <p class="text-gray-200 mb-3">免费4K高清壁纸-电脑背景图片-Mac壁纸网站</p>
+              <a href="https://haowallpaper.com/" target="_blank" class="text-primary hover:text-secondary transition-colors inline-flex items-center">
+                访问网站 <i class="fa fa-external-link ml-1"></i>
+              </a>
+            </div>
+          </div>
+          
+          <!-- 推荐站点2 -->
+          <div class="glass-effect bg-white/5 dark:bg-gray-800/30 rounded-2xl p-6 border border-white/10 dark:border-gray-700 shadow-lg card-hover">
+            <div class="flex justify-between items-start mb-4">
+              <h3 class="text-xl font-bold text-white">MyFreeMP3</h3>
+              <button class="collapse-btn text-white/70 hover:text-white p-1 rounded-full hover:bg-white/10 transition-colors">
+                <i class="fa fa-chevron-up"></i>
+              </button>
+            </div>
+            <div class="collapse-content">
+              <p class="text-gray-200 mb-3">mp3歌曲免费下载</p>
+              <a href="https://www.myfreemp3.com.cn/" target="_blank" class="text-primary hover:text-secondary transition-colors inline-flex items-center">
+                访问网站 <i class="fa fa-external-link ml-1"></i>
+              </a>
+            </div>
+          </div>
+          
+          <!-- 推荐站点3 -->
+          <div class="glass-effect bg-white/5 dark:bg-gray-800/30 rounded-2xl p-6 border border-white/10 dark:border-gray-700 shadow-lg card-hover">
+            <div class="flex justify-between items-start mb-4">
+              <h3 class="text-xl font-bold text-white">白描网页版</h3>
+              <button class="collapse-btn text-white/70 hover:text-white p-1 rounded-full hover:bg-white/10 transition-colors">
+                <i class="fa fa-chevron-up"></i>
+              </button>
+            </div>
+            <div class="collapse-content">
+              <p class="text-gray-200 mb-3">图片文字提取</p>
+              <a href="https://web.baimiaoapp.com/" target="_blank" class="text-primary hover:text-secondary transition-colors inline-flex items-center">
+                访问网站 <i class="fa fa-external-link ml-1"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  
+  
+  <!-- 页脚 -->
+  <footer class="glass-effect bg-glass dark:bg-glass-dark border-t border-white/10 dark:border-gray-800">
+    <div class="container mx-auto px-4 py-8">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <div class="flex items-center space-x-2 mb-4">
+            <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+              <i class="fa fa-cube text-white text-xl"></i>
+            </div>
+            <span class="text-xl font-bold text-white">Amicora</span>
+          </div>
+          <p class="text-gray-300 mb-4">一个友好、和谐的我的世界服务器社区，致力于为玩家提供优质的游戏体验。</p>
+        </div>
+        
+        <div>
+          <h4 class="text-white font-bold mb-4">快速链接</h4>
+          <ul class="space-y-2">
+            <li><a href="#about" class="text-gray-300 hover:text-primary transition-colors">关于我们</a></li>
+            <li><a href="#community" class="text-gray-300 hover:text-primary transition-colors">玩家社区</a></li>
+            <li><a href="#news" class="text-gray-300 hover:text-primary transition-colors">新闻动态</a></li>
+            <li><a href="#fun" class="text-gray-300 hover:text-primary transition-colors">活动信息</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h4 class="text-white font-bold mb-4">服务器信息</h4>
+          <ul class="space-y-2">
+            <li class="flex items-center"><i class="fa fa-server text-primary mr-2"></i> <span class="text-gray-300">play.vahiru.xyz</span></li>
+            <li class="flex items-center"><i class="fa fa-clock-o text-primary mr-2"></i> <span class="text-gray-300">0/500 在线</span></li>
+            <li class="flex items-center"><i class="fa fa-gamepad text-primary mr-2"></i> <span class="text-gray-300">1.13~1.21.8 版本</span></li>
+            <li class="flex items-center"><i class="fa fa-users text-primary mr-2"></i> <span class="text-gray-300">QQ群:259378600</span></li>
+          </ul>
+        </div>
+      
+      <div class="border-t border-white/10 mt-8 pt-6 flex flex-col md:flex-row justify-between items-center">
+        <p class="text-gray-400 text-sm mb-4 md:mb-0">© 2025 Amicora 我的世界服务器. 保留所有权利.</p>
+      </div>
+    </div>
+  </footer>
+  
+  <!-- 返回顶部按钮 -->
+  <button id="backToTop" class="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center shadow-lg opacity-0 invisible transition-all duration-300 hover:bg-primary/80">
+    <i class="fa fa-chevron-up"></i>
+  </button>
+  
+  <!-- JavaScript -->
+  <script>
+    // 文档加载完成后执行
+    document.addEventListener('DOMContentLoaded', function() {
+      // 欢迎语和每日好句
+      updateGreetingAndQuote();
+      
+      // 服务器状态图表
+      initServerStatusChart();
+      
+      // 社区统计图表
+      initCommunityChart();
+      
+      // 卡片折叠功能
+      initCollapseCards();
+      
+      // 移动端菜单
+      initMobileMenu();
+      
+      // 主题切换
+      initThemeToggle();
+      
+      // 背景切换
+      initBackgroundToggle();
+      
+      // 音乐控制
+      initMusicControl();
+      
+      // 返回顶部按钮
+      initBackToTop();
+      
+      // 复制功能
+      initCopyFunction();
+      
+      // 滚动效果
+      initScrollEffects();
+    });
+    
+    // 更新欢迎语和每日好句
+    function updateGreetingAndQuote() {
+      const greetingEl = document.getElementById('greeting');
+      const quoteEl = document.getElementById('dailyQuote');
+      
+      // 根据时间设置欢迎语
+      const hour = new Date().getHours();
+      let greeting;
+      
+      if (hour >= 5 && hour < 10) {
+        greeting = '早上好，新的一天开始了，准备好学习新的知识了吗喵qwq？';
+      } else if (hour >= 10 && hour < 14) {
+        greeting = '中午好，阳光正好，适合在游戏中冒险一番！';
+      } else if (hour >= 14 && hour < 18) {
+        greeting = '下午好，精力充沛，一起来建造属于我们的世界吧！';
+      } else if (hour >= 18 && hour < 22) {
+        greeting = '晚上好，夜幕降临，是时候享受片刻宁静了。';
+      } else {
+        greeting = '深夜了，还在奋斗吗？注意休息喵。';
+      }
+      
+      // 每日好句 - 随机选择
+      const quotes = [
+        '菩提本无树，明镜亦非台。',
+        '一花一世界，一叶一菩提。',
+        '道在蝼蚁，在稊稗，在瓦甓，在屎溺。',
+        '海纳百川，有容乃大；壁立千仞，无欲则刚。',
+        '天行健，君子以自强不息。',
+        '地势坤，君子以厚德载物。',
+        '少壮不努力，老大徒伤悲。',
+        '路漫漫其修远兮，吾将上下而求索。',
+        '宝剑锋从磨砺出，梅花香自苦寒来。',
+        '非淡泊无以明志，非宁静无以致远。',
+        "探索未知，创造无限 —— Minecraft 精神",
+        "方块虽小，世界很大",
+        "每一次挖掘都是新的开始",
+        "在像素的世界里，梦想也能成真",
+        "合作建造，乐趣加倍",
+        "红石的奥秘，等待你的发现",
+                "夜晚再黑，也有星光相伴",
+                "从无到有，这就是创造的魅力",
+                "每一个建筑，都是思想的结晶",
+                "冒险不止，探索不停",
+                "山空松子落，幽人应未眠",
+                "落花无言，人淡如菊",
+                "行到水穷处，坐看云起时",
+                "本来无一物，何处惹尘埃",
+                "掬水月在手，弄花香满衣",
+                "松风吹解带，山月照弹琴",
+                "清夜无尘，月色如银",
+                "此心安处是吾乡",
+                "鸟宿池边树，僧敲月下门",
+                "望天空云卷云舒，观庭前花开花落",
+                "心若浮沉，浅笑安然",
+                "人闲桂花落，夜静春山空",
+                "醉后不知天在水，满船清梦压星河",
+                "孤光自照，肝胆皆冰雪",
+                "当时明月在，曾照彩云归",
+                "事若知足心常泰，人到无求品自高",
+                "却顾所来径，苍苍横翠微",
+                "露从今夜白，月是故乡明",
+                "回首向来萧瑟处，也无风雨也无晴",
+                "清风徐来，水波不兴",
+                "醉里枕月听风，梦入清辉满庭",
+                "落花静无言，晚色漫成诗",
+                "小舟从此逝，江海寄余生",
+                "山高水远，万事皆安",
+                "繁华落尽，平淡归真",
+                "星垂夜幕柔，月漫心河静",
+                "一念心清净，处处莲花开",
+                "采菊东篱下，悠然见南山",
+                "掬一捧月光，安吾心所向",
+                "心有山海，静而无边",
+                "明月照窗棂，清风拂心宁",
+                "薄酒可消忧，清景宜慢赏",
+                "心若向暖，安之若素",
+                "回首岁月静，心藏珍珠明",
+                "晚色与心共静，清辉同梦齐飞",
+                "夜深知心静，时闻心音轻",
+                "晚来天渐静，梦枕清辉眠",
+                "非淡泊无以明志，非宁静无以致远",
+                "千般思绪过，静后始见真",
+                "月上梢头静，人约心归宁",
+                "心舟乘静渡，直向彼岸行",
+                "夜有清辉梦有静，心无闲事自安闲",
+                "宠辱不惊，闲看庭前花开花落",
+                "身安不如心安，屋宽不如心宽",
+                "蝉噪林逾静，鸟鸣山更幽",
+                "日暮心花静若蓝，晚色漫染意悠然",
+                "不忘初心，方得始终",
+                "醉后心游清梦海，满船宁静压星河",
+                "愿君心藏宁静，遍历山河皆安",
+                "日子常如新，宁静藏旧忆"
+      ];
+      
+      // 基于日期生成随机索引，确保每天的句子固定
+      const today = new Date();
+      const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
+      const randomIndex = dayOfYear % quotes.length;
+      
+      greetingEl.textContent = greeting;
+      quoteEl.textContent = quotes[randomIndex];
+    }
+    
+    // 初始化服务器状态图表
+    function initServerStatusChart() {
+      const ctx = document.getElementById('serverStatusChart').getContext('2d');
+      
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+          datasets: [{
+            label: '在线玩家数',
+            data: [0, 0, 0, 0, 0, 0, 0],
+            borderColor: '#8B5CF6',
+            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+            tension: 0.4,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: {
+                color: 'rgba(255, 255, 255, 0.1)'
+              },
+              ticks: {
+                color: 'rgba(255, 255, 255, 0.7)'
+              }
+            },
+            x: {
+              grid: {
+                color: 'rgba(255, 255, 255, 0.1)'
+              },
+              ticks: {
+                color: 'rgba(255, 255, 255, 0.7)'
+              }
+            }
+          }
+        }
+      });
+    }
+    
+    // 初始化社区统计图表
+    function initCommunityChart() {
+      const ctx = document.getElementById('communityChart').getContext('2d');
+      
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['一月', '二月', '三月', '四月', '五月', '六月'],
+          datasets: [{
+            label: '新增玩家',
+            data: [0, 0, 0, 0, 0, 0],
+            backgroundColor: 'rgba(139, 92, 246, 0.7)',
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              labels: {
+                color: 'rgba(255, 255, 255, 0.7)'
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: {
+                color: 'rgba(255, 255, 255, 0.1)'
+              },
+              ticks: {
+                color: 'rgba(255, 255, 255, 0.7)'
+              }
+            },
+            x: {
+              grid: {
+                color: 'rgba(255, 255, 255, 0.1)'
+              },
+              ticks: {
+                color: 'rgba(255, 255, 255, 0.7)'
+              }
+            }
+          }
+        }
+      });
+    }
+    
+    // 初始化卡片折叠功能
+    function initCollapseCards() {
+      const collapseBtns = document.querySelectorAll('.collapse-btn');
+      
+      collapseBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const content = this.parentElement.nextElementSibling;
+          const icon = this.querySelector('i');
+          
+          if (content.style.maxHeight) {
+            content.style.maxHeight = null;
+            icon.classList.remove('fa-chevron-down');
+            icon.classList.add('fa-chevron-up');
+          } else {
+            content.style.maxHeight = content.scrollHeight + 'px';
+            icon.classList.remove('fa-chevron-up');
+            icon.classList.add('fa-chevron-down');
+          }
+        });
+      });
+    }
+    
+    // 初始化移动端菜单
+    function initMobileMenu() {
+      const menuBtn = document.getElementById('mobileMenuBtn');
+      const mobileMenu = document.getElementById('mobileMenu');
+      
+      menuBtn.addEventListener('click', function() {
+        mobileMenu.classList.toggle('hidden');
+        const icon = this.querySelector('i');
+        if (icon.classList.contains('fa-bars')) {
+          icon.classList.remove('fa-bars');
+          icon.classList.add('fa-times');
+        } else {
+          icon.classList.remove('fa-times');
+          icon.classList.add('fa-bars');
+        }
+      });
+      
+      // 移动端菜单项点击后关闭菜单
+      const mobileLinks = mobileMenu.querySelectorAll('a');
+      mobileLinks.forEach(link => {
+        link.addEventListener('click', function() {
+          mobileMenu.classList.add('hidden');
+          const icon = menuBtn.querySelector('i');
+          icon.classList.remove('fa-times');
+          icon.classList.add('fa-bars');
+        });
+      });
+    }
+    
+    // 初始化主题切换
+    function initThemeToggle() {
+      const themeToggle = document.getElementById('themeToggle');
+      const html = document.documentElement;
+      const icon = themeToggle.querySelector('i');
+      
+      // 检查本地存储中的主题偏好
+      if (localStorage.getItem('theme') === 'dark' || 
+          (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        html.classList.add('dark');
+        icon.classList.remove('fa-moon-o');
+        icon.classList.add('fa-sun-o');
+      }
+      
+      // 切换主题
+      themeToggle.addEventListener('click', function() {
+        html.classList.toggle('dark');
+        
+        if (html.classList.contains('dark')) {
+          localStorage.setItem('theme', 'dark');
+          icon.classList.remove('fa-moon-o');
+          icon.classList.add('fa-sun-o');
+        } else {
+          localStorage.setItem('theme', 'light');
+          icon.classList.remove('fa-sun-o');
+          icon.classList.add('fa-moon-o');
+        }
+      });
+    }
+    
+    // 初始化背景切换
+    function initBackgroundToggle() {
+      const bgToggle = document.getElementById('bgToggle');
+      const body = document.body;
+      const icon = bgToggle.querySelector('i');
+      
+      // 检查本地存储中的背景偏好
+      if (localStorage.getItem('background') === 'pure') {
+        body.classList.remove('bg-anime');
+        body.classList.add('bg-pure');
+        icon.classList.remove('fa-image');
+        icon.classList.add('fa-picture-o');
+      }
+      
+      // 切换背景
+      bgToggle.addEventListener('click', function() {
+        body.classList.toggle('bg-anime');
+        body.classList.toggle('bg-pure');
+        
+        if (body.classList.contains('bg-pure')) {
+          localStorage.setItem('background', 'pure');
+          icon.classList.remove('fa-image');
+          icon.classList.add('fa-picture-o');
+        } else {
+          localStorage.setItem('background', 'anime');
+          icon.classList.remove('fa-picture-o');
+          icon.classList.add('fa-image');
+        }
+      });
+    }
+    
+    // 初始化音乐控制
+    function initMusicControl() {
+      const musicToggle = document.getElementById('musicToggle');
+      const bgMusic = document.getElementById('bgMusic');
+      const icon = musicToggle.querySelector('i');
+      
+      // 检查本地存储中的音乐偏好
+      if (localStorage.getItem('music') === 'playing') {
+        bgMusic.play().catch(e => console.log('自动播放失败:', e));
+        icon.classList.remove('fa-music');
+        icon.classList.add('fa-pause');
+      }
+      
+      // 切换音乐播放状态
+      musicToggle.addEventListener('click', function() {
+        if (bgMusic.paused) {
+          bgMusic.play().catch(e => console.log('播放失败:', e));
+          localStorage.setItem('music', 'playing');
+          icon.classList.remove('fa-music');
+          icon.classList.add('fa-pause');
+        } else {
+          bgMusic.pause();
+          localStorage.setItem('music', 'paused');
+          icon.classList.remove('fa-pause');
+          icon.classList.add('fa-music');
+        }
+      });
+    }
+    
+    // 初始化返回顶部按钮
+    function initBackToTop() {
+      const backToTopBtn = document.getElementById('backToTop');
+      
+      window.addEventListener('scroll', function() {
+        if (window.pageYOffset > 300) {
+          backToTopBtn.classList.remove('opacity-0', 'invisible');
+          backToTopBtn.classList.add('opacity-100', 'visible');
+        } else {
+          backToTopBtn.classList.remove('opacity-100', 'visible');
+          backToTopBtn.classList.add('opacity-0', 'invisible');
+        }
+      });
+      
+      backToTopBtn.addEventListener('click', function() {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      });
+    }
+    
+    // 初始化复制功能
+    function initCopyFunction() {
+      // 已经在HTML中通过onclick调用copyToClipboard
+    }
+    
+    // 复制到剪贴板
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        // 显示复制成功提示
+        const notification = document.createElement('div');
+        notification.className = 'fixed top-20 right-4 bg-primary text-white px-4 py-2 rounded-lg shadow-lg z-50 transition-all';
+        notification.textContent = '已复制: ' + text;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+          notification.style.opacity = '0';
+          setTimeout(() => {
+            document.body.removeChild(notification);
+          }, 300);
+        }, 2000);
+      });
+    }
+    
+    // 初始化滚动效果
+    function initScrollEffects() {
+      const header = document.querySelector('header');
+      
+      window.addEventListener('scroll', function() {
+        if (window.pageYOffset > 50) {
+          header.classList.add('bg-glass/90', 'dark:bg-glass-dark/90', 'shadow-lg');
+          header.classList.remove('bg-transparent');
+        } else {
+          header.classList.remove('bg-glass/90', 'dark:bg-glass-dark/90', 'shadow-lg');
+          header.classList.add('bg-transparent');
+        }
+      });
+    }
+  </script>
+</body>
+</html>
